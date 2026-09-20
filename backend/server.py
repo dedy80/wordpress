@@ -4,6 +4,7 @@ from starlette.middleware.cors import CORSMiddleware
 from motor.motor_asyncio import AsyncIOMotorClient
 import os
 import logging
+import re
 import uuid
 import requests
 from pathlib import Path
@@ -95,6 +96,28 @@ class Registration(BaseModel):
     created_at: str = Field(default_factory=lambda: datetime.now(timezone.utc).isoformat())
 
 
+class Certificate(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    nomor_sertifikat: str
+    nama_peserta: str
+    program: str
+    tanggal_terbit: str
+    predikat: Optional[str] = ""
+    status: str = "Valid"
+    created_at: str = Field(default_factory=lambda: datetime.now(timezone.utc).isoformat())
+
+
+class CertificateCreate(BaseModel):
+    nomor_sertifikat: str
+    nama_peserta: str
+    program: str
+    tanggal_terbit: str
+    predikat: Optional[str] = ""
+    status: str = "Valid"
+
+
 COURSES = [
     {"id": "office-profesional", "title": "Kursus Ms Office Profesional"},
     {"id": "mahir-excel", "title": "Kursus Mahir Excel"},
@@ -172,6 +195,49 @@ async def get_bukti(reg_id: str, key: Optional[str] = Query(None)):
         raise HTTPException(status_code=404, detail="Bukti tidak ditemukan")
     data, content_type = get_object(record["bukti_path"])
     return Response(content=data, media_type=content_type)
+
+
+@api_router.get("/certificates/verify")
+async def verify_certificate(nomor: str = Query(...)):
+    n = nomor.strip()
+    if not n:
+        raise HTTPException(status_code=400, detail="Nomor sertifikat wajib diisi")
+    doc = await db.certificates.find_one(
+        {"nomor_sertifikat": {"$regex": f"^{re.escape(n)}$", "$options": "i"}}, {"_id": 0}
+    )
+    if not doc:
+        raise HTTPException(status_code=404, detail="Sertifikat tidak ditemukan")
+    return doc
+
+
+@api_router.post("/admin/certificates", response_model=Certificate)
+async def create_certificate(payload: CertificateCreate, x_admin_key: Optional[str] = Header(None)):
+    check_admin(x_admin_key)
+    nomor = payload.nomor_sertifikat.strip()
+    existing = await db.certificates.find_one(
+        {"nomor_sertifikat": {"$regex": f"^{re.escape(nomor)}$", "$options": "i"}}
+    )
+    if existing:
+        raise HTTPException(status_code=400, detail="Nomor sertifikat sudah terdaftar")
+    data = payload.model_dump()
+    data["nomor_sertifikat"] = nomor
+    cert = Certificate(**data)
+    await db.certificates.insert_one(cert.model_dump())
+    return cert
+
+
+@api_router.get("/admin/certificates", response_model=List[Certificate])
+async def list_certificates(x_admin_key: Optional[str] = Header(None)):
+    check_admin(x_admin_key)
+    docs = await db.certificates.find({}, {"_id": 0}).sort("created_at", -1).to_list(1000)
+    return docs
+
+
+@api_router.delete("/admin/certificates/{cert_id}")
+async def delete_certificate(cert_id: str, x_admin_key: Optional[str] = Header(None)):
+    check_admin(x_admin_key)
+    await db.certificates.delete_one({"id": cert_id})
+    return {"ok": True}
 
 
 app.include_router(api_router)

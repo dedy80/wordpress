@@ -5,6 +5,7 @@ import {
   ShieldCheck, Loader2, Search, Users, Eye, LogOut, RefreshCw, X, FileText,
 } from "lucide-react";
 import { Navbar } from "@/components/Navbar";
+import { CertAdmin } from "@/components/CertAdmin";
 import { COURSES } from "@/data";
 
 const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
@@ -53,6 +54,7 @@ export default function Admin() {
   const [q, setQ] = useState("");
   const [courseFilter, setCourseFilter] = useState("all");
   const [proofId, setProofId] = useState(null);
+  const [tab, setTab] = useState("pendaftar");
 
   const load = useCallback(async (key) => {
     setLoading(true);
@@ -148,8 +150,8 @@ export default function Admin() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
         <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
           <div>
-            <h1 className="font-display text-2xl sm:text-3xl font-bold text-slate-900">Data Pendaftar</h1>
-            <p className="text-slate-500 text-sm">Kelola & lihat seluruh pendaftaran kursus.</p>
+            <h1 className="font-display text-2xl sm:text-3xl font-bold text-slate-900">Panel Admin</h1>
+            <p className="text-slate-500 text-sm">Kelola pendaftaran kursus & data sertifikat peserta.</p>
           </div>
           <div className="flex items-center gap-2">
             <button
@@ -169,6 +171,25 @@ export default function Admin() {
           </div>
         </div>
 
+        <div className="flex gap-1 mb-6 border-b border-slate-200">
+          {[
+            { id: "pendaftar", label: "Data Pendaftar" },
+            { id: "sertifikat", label: "Data Sertifikat" },
+          ].map((t) => (
+            <button
+              key={t.id}
+              data-testid={`admin-tab-${t.id}`}
+              onClick={() => setTab(t.id)}
+              className={`px-5 py-3 text-sm font-semibold border-b-2 -mb-px transition-colors ${
+                tab === t.id ? "border-blue-600 text-blue-600" : "border-transparent text-slate-500 hover:text-slate-800"
+              }`}
+            >
+              {t.label}
+            </button>
+          ))}
+        </div>
+
+        {tab === "pendaftar" && (<>
         <div className="grid sm:grid-cols-3 gap-4 mb-6">
           <div className="bg-white rounded-2xl border border-slate-200 p-5 flex items-center gap-4">
             <div className="w-12 h-12 rounded-xl bg-blue-100 flex items-center justify-center">
@@ -262,6 +283,9 @@ export default function Admin() {
             </table>
           </div>
         </div>
+        </>)}
+
+        {tab === "sertifikat" && <CertAdmin adminKey={adminKey} />}
       </div>
 
       {proofId && <ProofModal regId={proofId} adminKey={adminKey} onClose={() => setProofId(null)} />}

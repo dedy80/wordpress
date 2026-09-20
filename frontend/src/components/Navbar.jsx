@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { Menu, X, ShieldCheck, Phone } from "lucide-react";
+import { Menu, X, ShieldCheck, Phone, BadgeCheck } from "lucide-react";
 import { Logo } from "@/components/Logo";
 import { WA_LINK } from "@/data";
 
@@ -37,6 +37,13 @@ export const Navbar = () => {
         )}
 
         <div className="flex items-center gap-2">
+          <Link
+            data-testid="nav-validasi-link"
+            to="/validasi"
+            className="hidden md:inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold text-blue-700 bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors"
+          >
+            <BadgeCheck className="h-4 w-4" /> Validasi Sertifikat
+          </Link>
           <a
             data-testid="nav-whatsapp-btn"
             href={WA_LINK}
@@ -77,6 +84,14 @@ export const Navbar = () => {
               {l.label}
             </a>
           ))}
+          <Link
+            data-testid="nav-validasi-link-mobile"
+            to="/validasi"
+            onClick={() => setOpen(false)}
+            className="block px-3 py-2.5 text-sm font-semibold text-blue-700 hover:bg-blue-50 rounded-lg"
+          >
+            Validasi Sertifikat
+          </Link>
         </div>
       )}
     </header>

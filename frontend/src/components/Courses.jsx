@@ -32,8 +32,15 @@ export const Courses = ({ onSelect }) => (
           transition={{ duration: 0.5, delay: i * 0.08 }}
           className="group flex flex-col bg-white rounded-2xl border border-slate-200 p-5 hover:border-blue-300 hover:shadow-xl hover:shadow-blue-500/10 transition-all"
         >
-          <div className="flex items-center justify-between mb-3">
-            <span className={`text-[11px] font-bold px-2.5 py-1 rounded-full ${badgeColor[c.badge] || "bg-slate-100 text-slate-600"}`}>
+          <div className="-mx-5 -mt-5 mb-4 relative overflow-hidden rounded-t-2xl">
+            <img
+              src={c.image}
+              alt={c.title}
+              loading="lazy"
+              className="w-full h-40 object-cover transition-transform duration-500 group-hover:scale-105"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-slate-900/40 to-transparent" />
+            <span className={`absolute top-3 left-3 text-[11px] font-bold px-2.5 py-1 rounded-full ${badgeColor[c.badge] || "bg-slate-100 text-slate-600"}`}>
               {c.badge}
             </span>
           </div>

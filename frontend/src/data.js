@@ -24,6 +24,7 @@ export const COURSES = [
   {
     id: "office-profesional",
     title: "Kursus Ms Office Profesional",
+    image: "https://images.pexels.com/photos/1181378/pexels-photo-1181378.jpeg?auto=compress&cs=tinysrgb&w=800",
     category: "Perkantoran & Administrasi",
     duration: "8x Pertemuan",
     price: "Rp 1.500.000",
@@ -39,6 +40,7 @@ export const COURSES = [
   {
     id: "mahir-excel",
     title: "Kursus Mahir Excel",
+    image: "https://images.pexels.com/photos/8296982/pexels-photo-8296982.jpeg?auto=compress&cs=tinysrgb&w=800",
     category: "Data & Accounting",
     duration: "8x Pertemuan",
     price: "Rp 1.600.000",
@@ -54,6 +56,7 @@ export const COURSES = [
   {
     id: "digital-marketing-bnsp",
     title: "Digital Marketing & Sertifikasi BNSP",
+    image: "https://images.unsplash.com/photo-1724862936518-ae7fcfc052c1?crop=entropy&cs=srgb&fm=jpg&q=85&w=800",
     category: "Sertifikasi Profesi BNSP",
     duration: "2 Bulan + Uji Kompetensi BNSP",
     price: "Rp 650.000",
@@ -69,6 +72,7 @@ export const COURSES = [
   {
     id: "pilihan-lainnya",
     title: "Program & Sertifikasi Lainnya",
+    image: "https://images.pexels.com/photos/7648050/pexels-photo-7648050.jpeg?auto=compress&cs=tinysrgb&w=800",
     category: "Custom & Corporate",
     duration: "Fleksibel / Sesuai Kebutuhan",
     price: "Hubungi Admin",

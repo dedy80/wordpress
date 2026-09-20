@@ -21,12 +21,13 @@ Buat web pendaftaran Kursus dan Pelatihan serta Sertifikasi BNSP yang diselengga
 - Admin LKP: melihat & mencari data pendaftar, melihat bukti pembayaran.
 
 ## Implemented (2026-06)
-- Landing: hero, 4 kartu kursus (data statis dgn harga/highlight), section pendaftaran, footer, tombol WhatsApp mengambang.
+- Landing: hero full-bleed dengan foto pelatihan + overlay biru navy, badge BNSP, CTA, baris statistik.
+- 4 kartu kursus (harga & durasi terkini), section pendaftaran, footer, tombol WhatsApp mengambang.
 - Form pendaftaran publik dgn upload bukti (JPG/PNG/PDF, maks 10MB) + preview; success screen.
-- Endpoint: GET /api/courses, POST /api/registrations (multipart), GET /api/admin/verify, GET /api/admin/registrations, GET /api/admin/bukti/{id}?key=.
-- Admin dashboard: login key, stat total, tabel pendaftar, search, filter kursus, modal lihat bukti pembayaran.
-- Logo custom (generated) & tema biru-putih. Nomor admin 085171114889 di hero, navbar, footer, floating.
-- Tested end-to-end: backend 100% (10/10 pytest), frontend 100%.
+- Validasi Sertifikat publik (/validasi): cek nomor sertifikat, hasil Valid/Tidak Ditemukan (case-insensitive).
+- Admin (passcode `Pass123$$`) dengan 2 tab: Data Pendaftar (tabel, search, filter, lihat bukti) & Data Sertifikat (tambah/list/hapus sertifikat).
+- Endpoint kursus/pendaftaran/sertifikat + verify publik. Logo brand resmi, rekening BCA 690-1044888 (PT. HREDU Global Mandiri).
+- Tested end-to-end: backend 100% (15/15 pytest), frontend 100%.
 
 ## Backlog / Next (P1/P2)
 - P1: Status verifikasi pendaftaran (approve/reject) bila diperlukan.

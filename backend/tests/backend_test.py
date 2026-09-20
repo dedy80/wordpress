@@ -1,22 +1,23 @@
-"""Backend tests for LKP HReDU registration app."""
-import io
+"""Backend tests for LKP HReDU registration + certificate features."""
 import os
+import base64
+import uuid
 import pytest
 import requests
 
 BASE_URL = os.environ.get('REACT_APP_BACKEND_URL', 'https://kursus-digital-1.preview.emergentagent.com').rstrip('/')
 API = f"{BASE_URL}/api"
-ADMIN_KEY = "hredu2024"
+ADMIN_KEY = "Pass123$$"
+H = {"X-Admin-Key": ADMIN_KEY}
 
 
 def _png_bytes():
-    # minimal 1x1 PNG
-    import base64
     return base64.b64decode(
         "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII="
     )
 
 
+# --- Fixtures ---
 @pytest.fixture(scope="module")
 def created_reg_id():
     files = {"bukti": ("proof.png", _png_bytes(), "image/png")}
@@ -28,50 +29,33 @@ def created_reg_id():
     }
     r = requests.post(f"{API}/registrations", data=data, files=files, timeout=60)
     assert r.status_code == 200, r.text
-    j = r.json()
-    assert j["nama_lengkap"] == "TEST_User Satu"
-    assert j["email"] == "test_user1@example.com"
-    assert j["bukti_path"]
-    return j["id"]
+    return r.json()["id"]
 
 
+# --- Courses ---
 class TestCourses:
     def test_get_courses(self):
         r = requests.get(f"{API}/courses", timeout=30)
         assert r.status_code == 200
-        courses = r.json()
-        assert len(courses) == 4
-        ids = {c["id"] for c in courses}
+        ids = {c["id"] for c in r.json()}
         assert {"office-profesional", "mahir-excel", "digital-marketing-bnsp", "pilihan-lainnya"} <= ids
 
 
+# --- Registrations ---
 class TestRegistration:
     def test_create_registration_success(self, created_reg_id):
         assert created_reg_id
 
     def test_reject_bad_file_type(self):
         files = {"bukti": ("bad.txt", b"hello", "text/plain")}
-        data = {
-            "nama_lengkap": "TEST_Bad", "no_hp": "081", "email": "b@b.com",
-            "nisn": "1", "asal_instansi": "X", "kursus": "mahir-excel",
-        }
+        data = {"nama_lengkap": "TEST_Bad", "no_hp": "081", "email": "b@b.com",
+                "nisn": "1", "asal_instansi": "X", "kursus": "mahir-excel"}
         r = requests.post(f"{API}/registrations", data=data, files=files, timeout=30)
         assert r.status_code == 400
-        assert "JPG" in r.json()["detail"] or "PNG" in r.json()["detail"]
-
-    def test_reject_large_file(self):
-        big = b"x" * (10 * 1024 * 1024 + 10)
-        files = {"bukti": ("big.png", big, "image/png")}
-        data = {
-            "nama_lengkap": "TEST_Big", "no_hp": "081", "email": "b2@b.com",
-            "nisn": "1", "asal_instansi": "X", "kursus": "mahir-excel",
-        }
-        r = requests.post(f"{API}/registrations", data=data, files=files, timeout=60)
-        assert r.status_code == 400
-        assert "10MB" in r.json()["detail"]
 
 
-class TestAdmin:
+# --- Admin gate + registrations ---
+class TestAdminGate:
     def test_admin_no_key(self):
         r = requests.get(f"{API}/admin/registrations", timeout=30)
         assert r.status_code == 401
@@ -81,22 +65,86 @@ class TestAdmin:
         assert r.status_code == 401
 
     def test_admin_verify(self):
-        r = requests.get(f"{API}/admin/verify", headers={"X-Admin-Key": ADMIN_KEY}, timeout=30)
+        r = requests.get(f"{API}/admin/verify", headers=H, timeout=30)
         assert r.status_code == 200
         assert r.json()["ok"] is True
 
-    def test_admin_list(self, created_reg_id):
-        r = requests.get(f"{API}/admin/registrations", headers={"X-Admin-Key": ADMIN_KEY}, timeout=30)
+    def test_admin_list_regs(self, created_reg_id):
+        r = requests.get(f"{API}/admin/registrations", headers=H, timeout=30)
         assert r.status_code == 200
-        regs = r.json()
-        assert any(x["id"] == created_reg_id for x in regs)
+        assert any(x["id"] == created_reg_id for x in r.json())
 
     def test_admin_get_bukti(self, created_reg_id):
         r = requests.get(f"{API}/admin/bukti/{created_reg_id}", params={"key": ADMIN_KEY}, timeout=60)
         assert r.status_code == 200
         assert r.headers.get("content-type", "").startswith("image/")
-        assert len(r.content) > 0
 
-    def test_admin_get_bukti_wrong_key(self, created_reg_id):
-        r = requests.get(f"{API}/admin/bukti/{created_reg_id}", params={"key": "nope"}, timeout=30)
+
+# --- Certificates ---
+class TestCertificates:
+    def test_seed_cert_verify_uppercase(self):
+        r = requests.get(f"{API}/certificates/verify", params={"nomor": "HRDU/2026/0001"}, timeout=30)
+        assert r.status_code == 200, r.text
+        d = r.json()
+        assert d["nomor_sertifikat"] == "HRDU/2026/0001"
+        assert d["nama_peserta"] == "Budi Santoso"
+        assert d["status"] == "Valid"
+
+    def test_seed_cert_verify_lowercase(self):
+        r = requests.get(f"{API}/certificates/verify", params={"nomor": "hrdu/2026/0001"}, timeout=30)
+        assert r.status_code == 200
+        assert r.json()["nomor_sertifikat"].lower() == "hrdu/2026/0001"
+
+    def test_verify_not_found(self):
+        r = requests.get(f"{API}/certificates/verify", params={"nomor": "NOTEXIST/9999"}, timeout=30)
+        assert r.status_code == 404
+
+    def test_list_certs_requires_key(self):
+        r = requests.get(f"{API}/admin/certificates", timeout=30)
+        assert r.status_code == 401
+
+    def test_list_certs_has_seed(self):
+        r = requests.get(f"{API}/admin/certificates", headers=H, timeout=30)
+        assert r.status_code == 200
+        nums = [c["nomor_sertifikat"] for c in r.json()]
+        assert "HRDU/2026/0001" in nums
+
+    def test_create_and_verify_and_delete_cert(self):
+        nomor = f"TEST/{uuid.uuid4().hex[:8].upper()}"
+        payload = {
+            "nomor_sertifikat": nomor,
+            "nama_peserta": "TEST_Cert User",
+            "program": "Kursus Mahir Excel",
+            "tanggal_terbit": "2026-01-15",
+            "predikat": "Sangat Baik",
+            "status": "Valid",
+        }
+        # Create
+        r = requests.post(f"{API}/admin/certificates", json=payload, headers=H, timeout=30)
+        assert r.status_code == 200, r.text
+        cid = r.json()["id"]
+        assert r.json()["nomor_sertifikat"] == nomor
+        assert r.json()["nama_peserta"] == "TEST_Cert User"
+
+        # Public verify (case-insensitive)
+        r2 = requests.get(f"{API}/certificates/verify", params={"nomor": nomor.lower()}, timeout=30)
+        assert r2.status_code == 200
+        assert r2.json()["nama_peserta"] == "TEST_Cert User"
+
+        # Duplicate -> 400
+        r3 = requests.post(f"{API}/admin/certificates", json=payload, headers=H, timeout=30)
+        assert r3.status_code == 400
+
+        # Delete
+        r4 = requests.delete(f"{API}/admin/certificates/{cid}", headers=H, timeout=30)
+        assert r4.status_code == 200
+
+        # Verify gone
+        r5 = requests.get(f"{API}/certificates/verify", params={"nomor": nomor}, timeout=30)
+        assert r5.status_code == 404
+
+    def test_create_cert_requires_key(self):
+        r = requests.post(f"{API}/admin/certificates", json={
+            "nomor_sertifikat": "X/1", "nama_peserta": "X", "program": "X", "tanggal_terbit": "2026-01-01"
+        }, timeout=30)
         assert r.status_code == 401

@@ -148,3 +148,80 @@ class TestCertificates:
             "nomor_sertifikat": "X/1", "nama_peserta": "X", "program": "X", "tanggal_terbit": "2026-01-01"
         }, timeout=30)
         assert r.status_code == 401
+
+
+# --- Reviews (Google-style testimonials) ---
+class TestReviews:
+    def test_list_reviews_public(self):
+        r = requests.get(f"{API}/reviews", timeout=30)
+        assert r.status_code == 200
+        data = r.json()
+        assert isinstance(data, list)
+        assert len(data) >= 5, f"Expected >=5 seed reviews, got {len(data)}"
+        item = data[0]
+        for k in ("id", "author_name", "rating", "text"):
+            assert k in item
+        assert isinstance(item["rating"], int)
+
+    def test_create_review_requires_key(self):
+        r = requests.post(f"{API}/admin/reviews", json={
+            "author_name": "TEST_X", "rating": 5, "text": "hi"
+        }, timeout=30)
+        assert r.status_code == 401
+
+    def test_update_review_requires_key(self):
+        r = requests.put(f"{API}/admin/reviews/anyid", json={
+            "author_name": "TEST_X", "rating": 5, "text": "hi"
+        }, timeout=30)
+        assert r.status_code == 401
+
+    def test_delete_review_requires_key(self):
+        r = requests.delete(f"{API}/admin/reviews/anyid", timeout=30)
+        assert r.status_code == 401
+
+    def test_review_crud_flow(self):
+        # CREATE
+        payload = {
+            "author_name": "TEST_Reviewer",
+            "rating": 4,
+            "text": "TEST review original",
+            "relative_time": "1 minggu lalu",
+        }
+        r = requests.post(f"{API}/admin/reviews", json=payload, headers=H, timeout=30)
+        assert r.status_code == 200, r.text
+        created = r.json()
+        assert created["author_name"] == "TEST_Reviewer"
+        assert created["rating"] == 4
+        assert created["text"] == "TEST review original"
+        rid = created["id"]
+
+        # GET verifies persistence
+        r2 = requests.get(f"{API}/reviews", timeout=30)
+        assert r2.status_code == 200
+        assert any(x["id"] == rid and x["text"] == "TEST review original" for x in r2.json())
+
+        # UPDATE
+        upd = {**payload, "text": "TEST review UPDATED", "rating": 5}
+        r3 = requests.put(f"{API}/admin/reviews/{rid}", json=upd, headers=H, timeout=30)
+        assert r3.status_code == 200
+        assert r3.json()["text"] == "TEST review UPDATED"
+        assert r3.json()["rating"] == 5
+
+        # GET verifies update
+        r4 = requests.get(f"{API}/reviews", timeout=30)
+        found = next((x for x in r4.json() if x["id"] == rid), None)
+        assert found and found["text"] == "TEST review UPDATED" and found["rating"] == 5
+
+        # DELETE
+        r5 = requests.delete(f"{API}/admin/reviews/{rid}", headers=H, timeout=30)
+        assert r5.status_code == 200
+
+        # verify gone
+        r6 = requests.get(f"{API}/reviews", timeout=30)
+        assert not any(x["id"] == rid for x in r6.json())
+
+    def test_update_nonexistent_review(self):
+        r = requests.put(f"{API}/admin/reviews/does-not-exist", json={
+            "author_name": "TEST_X", "rating": 5, "text": "hi"
+        }, headers=H, timeout=30)
+        assert r.status_code == 404

@@ -123,7 +123,7 @@ class Review(BaseModel):
 
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
     author_name: str
-    rating: int = 5
+    rating: int = Field(default=5, ge=1, le=5)
     text: str
     relative_time: Optional[str] = ""
     created_at: str = Field(default_factory=lambda: datetime.now(timezone.utc).isoformat())
@@ -131,7 +131,7 @@ class Review(BaseModel):
 
 class ReviewCreate(BaseModel):
     author_name: str
-    rating: int = 5
+    rating: int = Field(default=5, ge=1, le=5)
     text: str
     relative_time: Optional[str] = ""
 

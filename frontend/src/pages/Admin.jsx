@@ -6,6 +6,7 @@ import {
 } from "lucide-react";
 import { Navbar } from "@/components/Navbar";
 import { CertAdmin } from "@/components/CertAdmin";
+import { ReviewAdmin } from "@/components/ReviewAdmin";
 import { COURSES } from "@/data";
 
 const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
@@ -175,6 +176,7 @@ export default function Admin() {
           {[
             { id: "pendaftar", label: "Data Pendaftar" },
             { id: "sertifikat", label: "Data Sertifikat" },
+            { id: "ulasan", label: "Ulasan Google" },
           ].map((t) => (
             <button
               key={t.id}
@@ -286,6 +288,7 @@ export default function Admin() {
         </>)}
 
         {tab === "sertifikat" && <CertAdmin adminKey={adminKey} />}
+        {tab === "ulasan" && <ReviewAdmin adminKey={adminKey} />}
       </div>
 
       {proofId && <ProofModal regId={proofId} adminKey={adminKey} onClose={() => setProofId(null)} />}

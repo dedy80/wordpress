@@ -118,6 +118,24 @@ class CertificateCreate(BaseModel):
     status: str = "Valid"
 
 
+class Review(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    author_name: str
+    rating: int = 5
+    text: str
+    relative_time: Optional[str] = ""
+    created_at: str = Field(default_factory=lambda: datetime.now(timezone.utc).isoformat())
+
+
+class ReviewCreate(BaseModel):
+    author_name: str
+    rating: int = 5
+    text: str
+    relative_time: Optional[str] = ""
+
+
 COURSES = [
     {"id": "office-profesional", "title": "Kursus Ms Office Profesional"},
     {"id": "mahir-excel", "title": "Kursus Mahir Excel"},
@@ -258,6 +276,41 @@ async def update_certificate(cert_id: str, payload: CertificateCreate, x_admin_k
 async def delete_certificate(cert_id: str, x_admin_key: Optional[str] = Header(None)):
     check_admin(x_admin_key)
     await db.certificates.delete_one({"id": cert_id})
+    return {"ok": True}
+
+
+@api_router.get("/reviews", response_model=List[Review])
+async def list_reviews():
+    docs = await db.reviews.find({}, {"_id": 0}).sort("created_at", -1).to_list(1000)
+    return docs
+
+
+@api_router.post("/admin/reviews", response_model=Review)
+async def create_review(payload: ReviewCreate, x_admin_key: Optional[str] = Header(None)):
+    check_admin(x_admin_key)
+    review = Review(**payload.model_dump())
+    await db.reviews.insert_one(review.model_dump())
+    return review
+
+
+@api_router.put("/admin/reviews/{review_id}", response_model=Review)
+async def update_review(review_id: str, payload: ReviewCreate, x_admin_key: Optional[str] = Header(None)):
+    check_admin(x_admin_key)
+    existing = await db.reviews.find_one({"id": review_id}, {"_id": 0})
+    if not existing:
+        raise HTTPException(status_code=404, detail="Ulasan tidak ditemukan")
+    data = payload.model_dump()
+    data["id"] = review_id
+    data["created_at"] = existing.get("created_at")
+    review = Review(**data)
+    await db.reviews.update_one({"id": review_id}, {"$set": review.model_dump()})
+    return review
+
+
+@api_router.delete("/admin/reviews/{review_id}")
+async def delete_review(review_id: str, x_admin_key: Optional[str] = Header(None)):
+    check_admin(x_admin_key)
+    await db.reviews.delete_one({"id": review_id})
     return {"ok": True}
 
 

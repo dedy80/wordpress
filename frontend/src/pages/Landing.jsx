@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Navbar } from "@/components/Navbar";
 import { Hero } from "@/components/Hero";
 import { Courses } from "@/components/Courses";
+import { Testimonials } from "@/components/Testimonials";
 import { RegistrationForm } from "@/components/RegistrationForm";
 import { Footer } from "@/components/Footer";
 import { WhatsAppFloat } from "@/components/WhatsAppFloat";
@@ -19,6 +20,7 @@ export default function Landing() {
       <Navbar />
       <Hero />
       <Courses onSelect={selectCourse} />
+      <Testimonials />
 
       <section id="pendaftaran" className="bg-slate-50 border-y border-slate-200 py-16 sm:py-20">
         <div className="max-w-6xl mx-auto px-4 sm:px-6">

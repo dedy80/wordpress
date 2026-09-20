@@ -7,6 +7,7 @@ import { WA_LINK } from "@/data";
 const links = [
   { label: "Beranda", href: "#beranda", id: "nav-home-link" },
   { label: "Kursus", href: "#kursus", id: "nav-courses-link" },
+  { label: "Testimoni", href: "#testimoni", id: "nav-testimoni-link" },
   { label: "Pendaftaran", href: "#pendaftaran", id: "nav-registration-link" },
   { label: "Kontak", href: "#kontak", id: "nav-contact-link" },
 ];

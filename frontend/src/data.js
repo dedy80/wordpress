@@ -5,6 +5,8 @@ export const WA_LINK = "https://wa.me/6285171114889?text=Halo%20Admin%20LKP%20HR
 
 export const HERO_IMAGE = "https://images.unsplash.com/photo-1527689368864-3a821dbccc34?crop=entropy&cs=srgb&fm=jpg&q=85&w=1200";
 
+export const HERO_BG = "https://static.prod-images.emergentagent.com/jobs/d82c79aa-9b66-4a36-a046-9931c05092d4/images/de6216bbbf89858f2b214238a90d3a5774c2a028708d22e61ce18af92c68ec08.jpeg";
+
 export const COURSES = [
   {
     id: "office-profesional",

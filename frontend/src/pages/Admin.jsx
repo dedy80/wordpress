@@ -80,11 +80,13 @@ export default function Admin() {
 
   const submitKey = async (e) => {
     e.preventDefault();
+    const key = keyInput.trim();
+    if (!key) return toast.error("Masukkan kunci admin terlebih dahulu");
     setChecking(true);
     try {
-      await axios.get(`${API}/admin/verify`, { headers: { "X-Admin-Key": keyInput } });
-      localStorage.setItem(KEY_STORE, keyInput);
-      setAdminKey(keyInput);
+      await axios.get(`${API}/admin/verify`, { headers: { "X-Admin-Key": key } });
+      localStorage.setItem(KEY_STORE, key);
+      setAdminKey(key);
       toast.success("Berhasil masuk");
     } catch {
       toast.error("Kunci admin salah");

@@ -197,7 +197,7 @@ async def create_registration(
 
 
 def check_admin(admin_key: Optional[str]):
-    if not ADMIN_KEY or admin_key != ADMIN_KEY:
+    if not ADMIN_KEY or (admin_key or "").strip() != ADMIN_KEY.strip():
         raise HTTPException(status_code=401, detail="Kunci admin tidak valid")
 
 

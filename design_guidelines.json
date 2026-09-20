@@ -1,0 +1,177 @@
+{
+  "project_identity": {
+    "name": "LKP HReDU Global Mandiri",
+    "subtitle": "Lembaga Kursus dan Pelatihan & Tempat Uji Kompetensi Sertifikasi BNSP",
+    "admin_phone": "085171114889",
+    "admin_whatsapp_link": "https://wa.me/6285171114889",
+    "theme": "Modern Professional Blue & White",
+    "language": "Indonesian"
+  },
+  "color_palette": {
+    "archetype": "Swiss & Corporate High-Trust Blue (Modern Professional)",
+    "primary": "#0F2C59",
+    "primary_hover": "#0A1F3F",
+    "accent_blue": "#2563EB",
+    "accent_blue_light": "#EFF6FF",
+    "accent_blue_border": "#BFDBFE",
+    "background_main": "#FAFAFC",
+    "background_secondary": "#F8FAFC",
+    "surface_card": "#FFFFFF",
+    "text_main": "#0F172A",
+    "text_muted": "#475569",
+    "text_light": "#64748B",
+    "border_subtle": "#E2E8F0",
+    "badge_bnsp_gold": "#D97706",
+    "badge_bnsp_bg": "#FEF3C7",
+    "success": "#16A34A",
+    "success_bg": "#DCFCE7"
+  },
+  "typography": {
+    "heading_font": "Plus Jakarta Sans, sans-serif",
+    "body_font": "Inter, sans-serif",
+    "font_imports": "https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&family=Inter:wght@400;500;600&display=swap",
+    "scale": {
+      "hero_h1": "text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight text-slate-900 leading-tight",
+      "section_h2": "text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight text-slate-900",
+      "card_title": "text-lg sm:text-xl font-bold text-slate-900",
+      "body_text": "text-sm sm:text-base text-slate-600 leading-relaxed"
+    }
+  },
+  "hero_section": {
+    "headline": "Tingkatkan Skill Professional & Raih Sertifikasi BNSP Resmi",
+    "subheadline": "LKP HReDU Global Mandiri menyediakan program kursus praktik langsung, fleksibel, dan sertifikasi resmi BNSP untuk akselerasi karir Anda.",
+    "badges": [
+      "Terakreditasi & Mitra Resmi BNSP",
+      "Instruktur Praktisi Industri",
+      "Jadwal Kelas Online & Offline",
+      "Sertifikat Kompetensi Kerja"
+    ],
+    "ctas": [
+      {
+        "label": "Daftar Kursus Sekarang",
+        "action": "scroll-to-registration",
+        "style": "bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3.5 px-7 rounded-xl shadow-lg shadow-blue-500/20"
+      },
+      {
+        "label": "Konsultasi WhatsApp (085171114889)",
+        "action": "open-whatsapp",
+        "style": "bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 font-semibold py-3.5 px-6 rounded-xl"
+      }
+    ]
+  },
+  "courses_data": [
+    {
+      "id": "office-profesional",
+      "title": "Kursus Ms Office Profesional",
+      "category": "Perkantoran & Administrasi",
+      "duration": "1 Bulan (12 Pertemuan)",
+      "price": "Rp 450.000",
+      "original_price": "Rp 750.000",
+      "badge": "Terpopuler",
+      "highlights": [
+        "Ms Word Advanced (Surat Masal & Layout Dokumen)",
+        "Ms Excel Dasar hingga Intermediate",
+        "Ms PowerPoint Presentasi Memukau",
+        "Sertifikat Kelulusan LKP HReDU"
+      ]
+    },
+    {
+      "id": "mahir-excel",
+      "title": "Kursus Mahir Excel (Data & Financial Analysis)",
+      "category": "Data & Accounting",
+      "duration": "1.5 Bulan (16 Pertemuan)",
+      "price": "Rp 650.000",
+      "original_price": "Rp 1.000.000",
+      "badge": "Best Seller",
+      "highlights": [
+        "VLOOKUP, XLOOKUP, INDEX-MATCH Master",
+        "Pivot Table & Interactive Dashboard",
+        "Formula Kompleks & Data Validation",
+        "Automation Macro VBA Dasar"
+      ]
+    },
+    {
+      "id": "digital-marketing-bnsp",
+      "title": "Digital Marketing & Sertifikasi BNSP",
+      "category": "Sertifikasi Profesi BNSP",
+      "duration": "2 Bulan + Uji Kompetensi BNSP",
+      "price": "Rp 1.450.000",
+      "original_price": "Rp 2.200.000",
+      "badge": "BNSP Certified",
+      "highlights": [
+        "Meta & Google Ads Campaign Strategy",
+        "Social Media Management & Copywriting",
+        "SEO & Content Marketing Strategy",
+        "Uji Kompetensi & Sertifikat Garuda BNSP"
+      ]
+    },
+    {
+      "id": "pilihan-lainnya",
+      "title": "Program Pelatihan & Sertifikasi Lainnya",
+      "category": "Custom & Corporate",
+      "duration": "Fleksibel / Sesuai Kebutuhan",
+      "price": "Hubungi Admin",
+      "badge": "Custom Request",
+      "highlights": [
+        "Graphic Design & UI/UX Fundamentals",
+        "Human Resource (HR) Staff BNSP",
+        "In-House Corporate Training",
+        "Konsultasi Kurikulum Khusus Kampus/Perusahaan"
+      ]
+    }
+  ],
+  "bank_transfer_info": [
+    {
+      "bank_name": "Bank BCA",
+      "account_number": "8830-912-441",
+      "account_name": "LKP HReDU Global Mandiri"
+    },
+    {
+      "bank_name": "Bank Mandiri",
+      "account_number": "137-00-99812-44",
+      "account_name": "LKP HReDU Global Mandiri"
+    }
+  ],
+  "image_urls": {
+    "hero_banner": "https://images.pexels.com/photos/9159041/pexels-photo-9159041.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
+    "students_collaboration": "https://images.unsplash.com/photo-1527689368864-3a821dbccc34?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjA1NTN8MHwxfHNlYXJjaHwxfHxtb2Rlcm4lMjBwcm9mZXNzaW9uYWwlMjB0ZWFtJTIwd29yayUyMGNvbXB1dGVyJTIwbGFwdG9wJTIwbGVhcm5pbmd8ZW58MHx8fHwxNzg5ODY5NjA1fDA&ixlib=rb-4.1.0&q=85",
+    "bnsp_seal_accent": "https://images.pexels.com/photos/39205064/pexels-photo-39205064.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940"
+  },
+  "instructions_to_main_agent": [
+    "Ensure the design radiates trust, clarity, and official vocational education authority with a clean modern white-and-blue interface.",
+    "The admin WhatsApp 085171114889 must be highlighted in sticky floating contact action, hero section, top bar, and footer.",
+    "Provide seamless toggling between Public Course Landing/Registration page and the Admin View Dashboard.",
+    "Form inputs must support file upload preview for Bukti Transfer (Payment proof) with mock image generation or real image display.",
+    "Admin dashboard should include searchable table, filter by course, status indicators (Terverifikasi, Menunggu Konfirmasi, Ditolak), and proof of payment lightbox image view.",
+    "Ensure all interactive elements have explicit data-testid attributes."
+  ],
+  "testing_requirements": {
+    "data_test_ids": [
+      "nav-brand-logo",
+      "nav-courses-link",
+      "nav-registration-link",
+      "nav-contact-link",
+      "nav-admin-toggle-btn",
+      "hero-register-cta",
+      "hero-whatsapp-cta",
+      "course-card-office-profesional",
+      "course-card-mahir-excel",
+      "course-card-digital-marketing",
+      "course-card-pilihan-lainnya",
+      "registration-form",
+      "form-input-nama-lengkap",
+      "form-input-no-hp",
+      "form-input-email",
+      "form-input-nisn-nik",
+      "form-input-asal-instansi",
+      "form-select-kursus",
+      "form-file-bukti-pembayaran",
+      "form-submit-btn",
+      "admin-search-input",
+      "admin-status-filter",
+      "admin-registrant-row",
+      "admin-view-proof-btn",
+      "contact-wa-button"
+    ]
+  }
+}

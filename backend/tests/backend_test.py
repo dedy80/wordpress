@@ -4,8 +4,13 @@ import base64
 import uuid
 import pytest
 import requests
+from pathlib import Path
+from dotenv import load_dotenv
 
-BASE_URL = os.environ.get('REACT_APP_BACKEND_URL', 'https://kursus-digital-1.preview.emergentagent.com').rstrip('/')
+# Load REACT_APP_BACKEND_URL from frontend/.env
+load_dotenv(Path(__file__).resolve().parents[2] / "frontend" / ".env")
+
+BASE_URL = os.environ['REACT_APP_BACKEND_URL'].rstrip('/')
 API = f"{BASE_URL}/api"
 ADMIN_KEY = "Pass123$$"
 H = {"X-Admin-Key": ADMIN_KEY}
@@ -68,6 +73,16 @@ class TestAdminGate:
         r = requests.get(f"{API}/admin/verify", headers=H, timeout=30)
         assert r.status_code == 200
         assert r.json()["ok"] is True
+
+    def test_admin_verify_trailing_space(self):
+        r = requests.get(f"{API}/admin/verify", headers={"X-Admin-Key": ADMIN_KEY + " "}, timeout=30)
+        assert r.status_code == 200
+        assert r.json()["ok"] is True
+
+    def test_admin_verify_leading_space(self):
+        # requests library disallows leading whitespace in headers; use trailing newline instead
+        r = requests.get(f"{API}/admin/verify", headers={"X-Admin-Key": ADMIN_KEY + "\t"}, timeout=30)
+        assert r.status_code == 200
 
     def test_admin_list_regs(self, created_reg_id):
         r = requests.get(f"{API}/admin/registrations", headers=H, timeout=30)

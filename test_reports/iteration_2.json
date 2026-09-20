@@ -1,0 +1,28 @@
+{
+  "summary": "Verified admin login fix (Pass123$$). Backend strip-tolerant check_admin() and frontend trim(keyInput) both confirmed working via pytest (23 tests) and Playwright E2E on /admin. Correct key logs in; wrong key rejected; trailing-whitespace key logs in and stored trimmed in localStorage; all 3 admin tabs render; logout works.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": [
+      {"screen": "Admin > Ulasan tab", "issues": ["React hydration warning: <span> cannot be a child of <option> in ReviewAdmin.jsx line 101 rating <select>. Non-blocking but should remove dynamic-instrumentation span or refactor markup."]}
+    ]
+  },
+  "test_report_links": ["/app/backend/tests/backend_test.py", "/app/test_reports/pytest/pytest_results.xml"],
+  "action_items": [
+    "Optional: fix React hydration warning in ReviewAdmin.jsx <option> (span child)."
+  ],
+  "critical_code_review_comments": [
+    "check_admin() correctly uses (admin_key or '').strip() != ADMIN_KEY.strip() — safe against None + whitespace.",
+    "Frontend submitKey() trims and stores trimmed key to localStorage — verified stored value has no whitespace.",
+    "Fallback URL in previous backend_test.py was outdated; replaced with dotenv-loaded REACT_APP_BACKEND_URL from frontend/.env so tests always target the current deployment."
+  ],
+  "updated_files": ["/app/backend/tests/backend_test.py"],
+  "success_rate": {"backend": "100% (23/23)", "frontend": "100% (all admin flows)"},
+  "test_credentials": "Admin key: Pass123$$ (from backend/.env ADMIN_KEY). localStorage key: hredu_admin_key.",
+  "seed_data_creation": "None (existing seeds untouched). Test data prefixed TEST_ persists across runs.",
+  "retest_needed": false,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "backend_test.py now loads REACT_APP_BACKEND_URL from /app/frontend/.env via python-dotenv. Whitespace-tolerant admin verify covered by test_admin_verify_trailing_space and test_admin_verify_leading_space (uses tab char since requests forbids leading whitespace in header values).",
+  "rca of the issue": "User's 'Pass123$$ did not work' was caused by (a) copy-paste whitespace and/or (b) stale hredu_admin_key in localStorage. Fix: backend strips both sides in check_admin(); frontend trims keyInput before verify/store; logout removes stored key. Verified end-to-end: trailing-space input succeeds and stored value equals 'Pass123$$' with no whitespace."
+}

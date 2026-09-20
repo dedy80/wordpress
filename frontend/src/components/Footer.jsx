@@ -5,12 +5,8 @@ export const Footer = () => (
   <footer id="kontak" className="bg-slate-900 text-slate-300 mt-8">
     <div className="max-w-7xl mx-auto px-4 sm:px-6 py-12 grid md:grid-cols-3 gap-8">
       <div>
-        <div className="flex items-center gap-2.5 mb-4">
-          <img src={LOGO_URL} alt="Logo" className="h-11 w-11 object-contain bg-white rounded-lg p-1" />
-          <div>
-            <p className="font-display font-extrabold text-white">HReDU Global Mandiri</p>
-            <p className="text-xs text-slate-400">Kursus, Pelatihan & Sertifikasi BNSP</p>
-          </div>
+        <div className="mb-4">
+          <img src={LOGO_URL} alt="LKP HReDU Global Mandiri" className="h-11 w-auto object-contain bg-white rounded-lg px-3 py-2" />
         </div>
         <p className="text-sm text-slate-400 leading-relaxed">
           Lembaga Kursus dan Pelatihan resmi yang berkomitmen mencetak SDM kompeten dan tersertifikasi.

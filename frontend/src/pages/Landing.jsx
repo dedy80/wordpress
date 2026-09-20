@@ -4,6 +4,7 @@ import { Hero } from "@/components/Hero";
 import { Courses } from "@/components/Courses";
 import { Testimonials } from "@/components/Testimonials";
 import { RegistrationForm } from "@/components/RegistrationForm";
+import { FinalCta } from "@/components/FinalCta";
 import { Footer } from "@/components/Footer";
 import { WhatsAppFloat } from "@/components/WhatsAppFloat";
 
@@ -36,6 +37,8 @@ export default function Landing() {
           <RegistrationForm selectedCourse={selectedCourse} />
         </div>
       </section>
+
+      <FinalCta />
 
       <Footer />
       <WhatsAppFloat />

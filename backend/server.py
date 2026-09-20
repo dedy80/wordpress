@@ -233,6 +233,27 @@ async def list_certificates(x_admin_key: Optional[str] = Header(None)):
     return docs
 
 
+@api_router.put("/admin/certificates/{cert_id}", response_model=Certificate)
+async def update_certificate(cert_id: str, payload: CertificateCreate, x_admin_key: Optional[str] = Header(None)):
+    check_admin(x_admin_key)
+    existing = await db.certificates.find_one({"id": cert_id}, {"_id": 0})
+    if not existing:
+        raise HTTPException(status_code=404, detail="Sertifikat tidak ditemukan")
+    nomor = payload.nomor_sertifikat.strip()
+    dup = await db.certificates.find_one(
+        {"nomor_sertifikat": {"$regex": f"^{re.escape(nomor)}$", "$options": "i"}, "id": {"$ne": cert_id}}
+    )
+    if dup:
+        raise HTTPException(status_code=400, detail="Nomor sertifikat sudah dipakai sertifikat lain")
+    data = payload.model_dump()
+    data["nomor_sertifikat"] = nomor
+    data["id"] = cert_id
+    data["created_at"] = existing.get("created_at")
+    cert = Certificate(**data)
+    await db.certificates.update_one({"id": cert_id}, {"$set": cert.model_dump()})
+    return cert
+
+
 @api_router.delete("/admin/certificates/{cert_id}")
 async def delete_certificate(cert_id: str, x_admin_key: Optional[str] = Header(None)):
     check_admin(x_admin_key)

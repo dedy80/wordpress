@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import axios from "axios";
 import { toast } from "sonner";
-import { Loader2, Plus, Trash2, Search, Award, RefreshCw } from "lucide-react";
+import { Loader2, Plus, Trash2, Search, Award, RefreshCw, Pencil, X, Save } from "lucide-react";
 import { COURSES } from "@/data";
 
 const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
@@ -14,6 +14,7 @@ export const CertAdmin = ({ adminKey }) => {
   const [saving, setSaving] = useState(false);
   const [q, setQ] = useState("");
   const [form, setForm] = useState(EMPTY);
+  const [editingId, setEditingId] = useState(null);
 
   const headers = { "X-Admin-Key": adminKey };
 
@@ -34,13 +35,37 @@ export const CertAdmin = ({ adminKey }) => {
 
   const change = (e) => setForm({ ...form, [e.target.name]: e.target.value });
 
+  const startEdit = (r) => {
+    setEditingId(r.id);
+    setForm({
+      nomor_sertifikat: r.nomor_sertifikat,
+      nama_peserta: r.nama_peserta,
+      program: r.program,
+      tanggal_terbit: r.tanggal_terbit,
+      predikat: r.predikat || "",
+      status: r.status,
+    });
+    document.getElementById("cert-form-anchor")?.scrollIntoView({ behavior: "smooth", block: "center" });
+  };
+
+  const cancelEdit = () => {
+    setEditingId(null);
+    setForm(EMPTY);
+  };
+
   const submit = async (e) => {
     e.preventDefault();
     setSaving(true);
     try {
-      await axios.post(`${API}/admin/certificates`, form, { headers });
-      toast.success("Sertifikat berhasil ditambahkan");
+      if (editingId) {
+        await axios.put(`${API}/admin/certificates/${editingId}`, form, { headers });
+        toast.success("Sertifikat berhasil diperbarui");
+      } else {
+        await axios.post(`${API}/admin/certificates`, form, { headers });
+        toast.success("Sertifikat berhasil ditambahkan");
+      }
       setForm(EMPTY);
+      setEditingId(null);
       load();
     } catch (err) {
       toast.error(err.response?.data?.detail || "Gagal menyimpan sertifikat");
@@ -68,12 +93,17 @@ export const CertAdmin = ({ adminKey }) => {
 
   return (
     <div className="grid lg:grid-cols-5 gap-6">
-      <form data-testid="cert-form" onSubmit={submit} className="lg:col-span-2 bg-white rounded-2xl border border-slate-200 p-6 space-y-3.5 h-fit">
+      <form id="cert-form-anchor" data-testid="cert-form" onSubmit={submit} className={`lg:col-span-2 bg-white rounded-2xl border p-6 space-y-3.5 h-fit ${editingId ? "border-blue-400 ring-2 ring-blue-100" : "border-slate-200"}`}>
         <div className="flex items-center gap-2 mb-1">
-          <div className="w-9 h-9 rounded-lg bg-blue-100 flex items-center justify-center">
-            <Award className="h-5 w-5 text-blue-600" />
+          <div className={`w-9 h-9 rounded-lg flex items-center justify-center ${editingId ? "bg-amber-100" : "bg-blue-100"}`}>
+            {editingId ? <Pencil className="h-5 w-5 text-amber-600" /> : <Award className="h-5 w-5 text-blue-600" />}
           </div>
-          <h3 className="font-display text-lg font-bold text-slate-900">Tambah Sertifikat</h3>
+          <h3 className="font-display text-lg font-bold text-slate-900">{editingId ? "Edit Sertifikat" : "Tambah Sertifikat"}</h3>
+          {editingId && (
+            <button type="button" data-testid="cert-cancel-edit-btn" onClick={cancelEdit} className="ml-auto p-1.5 hover:bg-slate-100 rounded-lg text-slate-500">
+              <X className="h-4 w-4" />
+            </button>
+          )}
         </div>
 
         <div>
@@ -110,7 +140,7 @@ export const CertAdmin = ({ adminKey }) => {
           </select>
         </div>
         <button data-testid="cert-submit-btn" type="submit" disabled={saving} className="w-full inline-flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 disabled:opacity-60 text-white font-semibold py-3 rounded-xl transition-colors">
-          {saving ? <Loader2 className="h-5 w-5 animate-spin" /> : <><Plus className="h-4.5 w-4.5" /> Simpan Sertifikat</>}
+          {saving ? <Loader2 className="h-5 w-5 animate-spin" /> : editingId ? <><Save className="h-4.5 w-4.5" /> Simpan Perubahan</> : <><Plus className="h-4.5 w-4.5" /> Simpan Sertifikat</>}
         </button>
       </form>
 
@@ -155,9 +185,14 @@ export const CertAdmin = ({ adminKey }) => {
                       <span className={`text-[11px] font-bold px-2.5 py-1 rounded-full ${r.status === "Valid" ? "bg-emerald-100 text-emerald-700" : "bg-red-100 text-red-700"}`}>{r.status}</span>
                     </td>
                     <td className="px-4 py-3 text-center">
-                      <button data-testid="cert-delete-btn" onClick={() => remove(r.id)} className="p-1.5 hover:bg-red-50 rounded-lg text-red-500">
-                        <Trash2 className="h-4 w-4" />
-                      </button>
+                      <div className="inline-flex items-center gap-1">
+                        <button data-testid="cert-edit-btn" onClick={() => startEdit(r)} className={`p-1.5 rounded-lg ${editingId === r.id ? "bg-amber-100 text-amber-600" : "hover:bg-blue-50 text-blue-600"}`}>
+                          <Pencil className="h-4 w-4" />
+                        </button>
+                        <button data-testid="cert-delete-btn" onClick={() => remove(r.id)} className="p-1.5 hover:bg-red-50 rounded-lg text-red-500">
+                          <Trash2 className="h-4 w-4" />
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))

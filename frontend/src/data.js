@@ -1,7 +1,18 @@
 export const LOGO_URL = "https://customer-assets-wrfwihn1.emergentagent.net/job_kursus-digital-1/artifacts/6110svwj_hredu2.png";
 
 export const ADMIN_PHONE = "085171114889";
+export const ADMIN_WA = "6285171114889";
 export const WA_LINK = "https://wa.me/6285171114889?text=Halo%20Admin%20LKP%20HReDU,%20saya%20ingin%20bertanya%20tentang%20kursus.";
+
+export const normalizePhone = (p) => {
+  let d = (p || "").replace(/\D/g, "");
+  if (d.startsWith("0")) d = "62" + d.slice(1);
+  else if (d.startsWith("8")) d = "62" + d;
+  return d;
+};
+
+export const waLink = (phone, text) =>
+  `https://wa.me/${normalizePhone(phone)}?text=${encodeURIComponent(text)}`;
 
 export const GOOGLE_BUSINESS_URL = "https://share.google/DFJdNjc6LrlCem6hT";
 

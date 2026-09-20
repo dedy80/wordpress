@@ -1,8 +1,8 @@
 import { useState, useRef, useEffect } from "react";
 import axios from "axios";
 import { toast } from "sonner";
-import { UploadCloud, FileText, X, Loader2, CheckCircle2 } from "lucide-react";
-import { COURSES } from "@/data";
+import { UploadCloud, FileText, X, Loader2, CheckCircle2, MessageCircle } from "lucide-react";
+import { COURSES, waLink, ADMIN_WA } from "@/data";
 import { BankInfo } from "@/components/BankInfo";
 
 const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
@@ -60,6 +60,9 @@ export const RegistrationForm = ({ selectedCourse }) => {
   };
 
   if (done) {
+    const adminMsg =
+      `Halo Admin LKP HReDU, saya *${form.nama_lengkap}* baru saja mendaftar kursus *${form.kursus}*. ` +
+      `No HP: ${form.no_hp}, Email: ${form.email}. Mohon konfirmasi pendaftaran & jadwal. Terima kasih.`;
     return (
       <div data-testid="registration-success" className="bg-white rounded-2xl border border-slate-200 p-8 text-center">
         <div className="mx-auto w-16 h-16 rounded-full bg-emerald-100 flex items-center justify-center mb-4">
@@ -67,16 +70,27 @@ export const RegistrationForm = ({ selectedCourse }) => {
         </div>
         <h3 className="font-display text-2xl font-bold text-slate-900">Pendaftaran Terkirim!</h3>
         <p className="text-slate-600 mt-2 max-w-md mx-auto">
-          Terima kasih, <b>{form.nama_lengkap}</b>. Data & bukti pembayaran Anda telah kami terima. Admin akan
-          menghubungi Anda via WhatsApp untuk konfirmasi jadwal kursus.
+          Terima kasih, <b>{form.nama_lengkap}</b>. Data & bukti pembayaran Anda telah kami terima. Untuk mempercepat
+          proses, silakan kirim konfirmasi ke admin melalui WhatsApp.
         </p>
-        <button
-          data-testid="register-again-btn"
-          onClick={() => { setForm(EMPTY); setFile(null); setPreview(null); setDone(false); }}
-          className="mt-6 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-xl transition-colors"
-        >
-          Daftar Lagi
-        </button>
+        <div className="mt-6 flex flex-col sm:flex-row gap-3 justify-center">
+          <a
+            data-testid="wa-confirm-admin-btn"
+            href={waLink(ADMIN_WA, adminMsg)}
+            target="_blank"
+            rel="noreferrer"
+            className="inline-flex items-center justify-center gap-2 bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-6 rounded-xl transition-colors"
+          >
+            <MessageCircle className="h-5 w-5" /> Konfirmasi via WhatsApp
+          </a>
+          <button
+            data-testid="register-again-btn"
+            onClick={() => { setForm(EMPTY); setFile(null); setPreview(null); setDone(false); }}
+            className="bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold py-3 px-6 rounded-xl transition-colors"
+          >
+            Daftar Lagi
+          </button>
+        </div>
       </div>
     );
   }

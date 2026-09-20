@@ -7,6 +7,8 @@ import logging
 import re
 import uuid
 import requests
+import pandas as pd
+from io import BytesIO
 from pathlib import Path
 from pydantic import BaseModel, Field, EmailStr, ConfigDict
 from typing import List, Optional
@@ -94,6 +96,13 @@ class Registration(BaseModel):
     bukti_filename: Optional[str] = None
     status: str = "Menunggu Konfirmasi"
     created_at: str = Field(default_factory=lambda: datetime.now(timezone.utc).isoformat())
+
+
+class StatusUpdate(BaseModel):
+    status: str
+
+
+VALID_STATUS = {"Menunggu Konfirmasi", "Terverifikasi", "Ditolak"}
 
 
 class Certificate(BaseModel):
@@ -213,6 +222,50 @@ async def get_bukti(reg_id: str, key: Optional[str] = Query(None)):
         raise HTTPException(status_code=404, detail="Bukti tidak ditemukan")
     data, content_type = get_object(record["bukti_path"])
     return Response(content=data, media_type=content_type)
+
+
+@api_router.put("/admin/registrations/{reg_id}/status", response_model=Registration)
+async def update_registration_status(reg_id: str, payload: StatusUpdate, x_admin_key: Optional[str] = Header(None)):
+    check_admin(x_admin_key)
+    if payload.status not in VALID_STATUS:
+        raise HTTPException(status_code=400, detail="Status tidak valid")
+    record = await db.registrations.find_one({"id": reg_id}, {"_id": 0})
+    if not record:
+        raise HTTPException(status_code=404, detail="Pendaftar tidak ditemukan")
+    await db.registrations.update_one({"id": reg_id}, {"$set": {"status": payload.status}})
+    record["status"] = payload.status
+    return record
+
+
+@api_router.get("/admin/registrations/export")
+async def export_registrations(key: Optional[str] = Query(None)):
+    check_admin(key)
+    docs = await db.registrations.find({}, {"_id": 0}).sort("created_at", -1).to_list(10000)
+    rows = [{
+        "Nama Lengkap": d.get("nama_lengkap", ""),
+        "No HP": d.get("no_hp", ""),
+        "Email": d.get("email", ""),
+        "NISN/NIK": d.get("nisn", ""),
+        "Asal Instansi": d.get("asal_instansi", ""),
+        "Kursus": d.get("kursus", ""),
+        "Catatan": d.get("catatan", ""),
+        "Status": d.get("status", ""),
+        "Tanggal Daftar": d.get("created_at", ""),
+    } for d in docs]
+    df = pd.DataFrame(rows, columns=[
+        "Nama Lengkap", "No HP", "Email", "NISN/NIK", "Asal Instansi",
+        "Kursus", "Catatan", "Status", "Tanggal Daftar",
+    ])
+    buf = BytesIO()
+    with pd.ExcelWriter(buf, engine="openpyxl") as writer:
+        df.to_excel(writer, index=False, sheet_name="Pendaftar")
+    buf.seek(0)
+    filename = f"pendaftar-hredu-{datetime.now(timezone.utc).strftime('%Y%m%d')}.xlsx"
+    return Response(
+        content=buf.getvalue(),
+        media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        headers={"Content-Disposition": f'attachment; filename="{filename}"'},
+    )
 
 
 @api_router.get("/certificates/verify")

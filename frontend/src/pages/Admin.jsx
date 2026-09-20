@@ -3,11 +3,12 @@ import axios from "axios";
 import { toast } from "sonner";
 import {
   ShieldCheck, Loader2, Search, Users, Eye, LogOut, RefreshCw, X, FileText,
+  CheckCircle2, XCircle, MessageCircle, Download,
 } from "lucide-react";
 import { Navbar } from "@/components/Navbar";
 import { CertAdmin } from "@/components/CertAdmin";
 import { ReviewAdmin } from "@/components/ReviewAdmin";
-import { COURSES } from "@/data";
+import { COURSES, waLink } from "@/data";
 
 const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
 const KEY_STORE = "hredu_admin_key";
@@ -43,6 +44,7 @@ const ProofModal = ({ regId, adminKey, onClose }) => {
 const statusColor = {
   "Menunggu Konfirmasi": "bg-amber-100 text-amber-700",
   Terverifikasi: "bg-emerald-100 text-emerald-700",
+  Ditolak: "bg-red-100 text-red-700",
 };
 
 export default function Admin() {
@@ -97,6 +99,22 @@ export default function Admin() {
     setAuthed(false);
     setRows([]);
   };
+
+  const updateStatus = async (id, status) => {
+    try {
+      await axios.put(`${API}/admin/registrations/${id}/status`, { status }, { headers: { "X-Admin-Key": adminKey } });
+      setRows((rs) => rs.map((r) => (r.id === id ? { ...r, status } : r)));
+      toast.success(`Status diperbarui: ${status}`);
+    } catch {
+      toast.error("Gagal memperbarui status");
+    }
+  };
+
+  const pesertaMsg = (r) =>
+    `Halo *${r.nama_lengkap}*, terima kasih telah mendaftar kursus *${r.kursus}* di LKP HReDU Global Mandiri. ` +
+    `Pendaftaran Anda telah kami terima. Admin akan menginformasikan jadwal & langkah selanjutnya. Terima kasih!`;
+
+  const exportUrl = `${API}/admin/registrations/export?key=${encodeURIComponent(adminKey)}`;
 
   const filtered = rows.filter((r) => {
     const matchQ =
@@ -155,6 +173,15 @@ export default function Admin() {
             <p className="text-slate-500 text-sm">Kelola pendaftaran kursus & data sertifikat peserta.</p>
           </div>
           <div className="flex items-center gap-2">
+            {tab === "pendaftar" && (
+              <a
+                data-testid="admin-export-btn"
+                href={exportUrl}
+                className="inline-flex items-center gap-2 px-4 py-2.5 text-sm font-semibold text-white bg-emerald-600 hover:bg-emerald-700 rounded-xl"
+              >
+                <Download className="h-4 w-4" /> Ekspor Excel
+              </a>
+            )}
             <button
               data-testid="admin-refresh-btn"
               onClick={() => load(adminKey)}
@@ -239,13 +266,14 @@ export default function Admin() {
                   <th className="text-left px-4 py-3 font-semibold">Kursus</th>
                   <th className="text-left px-4 py-3 font-semibold">Tanggal</th>
                   <th className="text-center px-4 py-3 font-semibold">Bukti</th>
+                  <th className="text-center px-4 py-3 font-semibold">Aksi</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
                 {loading ? (
-                  <tr><td colSpan={7} className="text-center py-12 text-slate-400"><Loader2 className="h-6 w-6 animate-spin mx-auto" /></td></tr>
+                  <tr><td colSpan={8} className="text-center py-12 text-slate-400"><Loader2 className="h-6 w-6 animate-spin mx-auto" /></td></tr>
                 ) : filtered.length === 0 ? (
-                  <tr><td colSpan={7} className="text-center py-12 text-slate-400">Belum ada data pendaftar.</td></tr>
+                  <tr><td colSpan={8} className="text-center py-12 text-slate-400">Belum ada data pendaftar.</td></tr>
                 ) : (
                   filtered.map((r) => (
                     <tr key={r.id} data-testid="admin-registrant-row" className="hover:bg-slate-50">
@@ -277,6 +305,36 @@ export default function Admin() {
                         ) : (
                           <span className="text-slate-300"><FileText className="h-4 w-4 mx-auto" /></span>
                         )}
+                      </td>
+                      <td className="px-4 py-3">
+                        <div className="flex items-center justify-center gap-1">
+                          <button
+                            data-testid="admin-verify-btn"
+                            title="Verifikasi"
+                            onClick={() => updateStatus(r.id, "Terverifikasi")}
+                            className="p-1.5 rounded-lg text-emerald-600 hover:bg-emerald-50 transition-colors"
+                          >
+                            <CheckCircle2 className="h-4 w-4" />
+                          </button>
+                          <button
+                            data-testid="admin-reject-btn"
+                            title="Tolak"
+                            onClick={() => updateStatus(r.id, "Ditolak")}
+                            className="p-1.5 rounded-lg text-red-600 hover:bg-red-50 transition-colors"
+                          >
+                            <XCircle className="h-4 w-4" />
+                          </button>
+                          <a
+                            data-testid="admin-wa-peserta-btn"
+                            title="Kirim WhatsApp ke peserta"
+                            href={waLink(r.no_hp, pesertaMsg(r))}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="p-1.5 rounded-lg text-green-600 hover:bg-green-50 transition-colors"
+                          >
+                            <MessageCircle className="h-4 w-4" />
+                          </a>
+                        </div>
                       </td>
                     </tr>
                   ))

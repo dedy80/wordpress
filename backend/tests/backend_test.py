@@ -12,7 +12,7 @@ load_dotenv(Path(__file__).resolve().parents[2] / "frontend" / ".env")
 
 BASE_URL = os.environ['REACT_APP_BACKEND_URL'].rstrip('/')
 API = f"{BASE_URL}/api"
-ADMIN_KEY = "Pass123$$"
+ADMIN_KEY = "Sukses2026$$"
 H = {"X-Admin-Key": ADMIN_KEY}
 
 
